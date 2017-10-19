@@ -1,5 +1,11 @@
 {PDFGradient, PDFLinearGradient, PDFRadialGradient} = require '../gradient'
 
+channelsToColorSpace = (channels) ->
+  switch channels
+    when 1 then 'DeviceGray'
+    when 3 then 'DeviceRGB'
+    when 4 then 'DeviceCMYK'
+
 module.exports =
   initColor: ->
     # The opacity dictionaries
@@ -15,45 +21,76 @@ module.exports =
       if color.charAt(0) is '#'
         color = color.replace(/#([0-9A-F])([0-9A-F])([0-9A-F])/i, "#$1$1$2$2$3$3") if color.length is 4
         hex = parseInt(color.slice(1), 16)
-        color = [hex >> 16, hex >> 8 & 0xff, hex & 0xff]
-
+        components = [hex >> 16, hex >> 8 & 0xff, hex & 0xff]
       else if namedColors[color]
-        color = namedColors[color]
+        components = namedColors[color]
 
-    if Array.isArray color
-      # RGB
-      if color.length is 3
-        color = (part / 255 for part in color)
+      normal = { colorSpace: 'DeviceRGB', components }
 
-      # CMYK
-      else if color.length is 4
-        color = (part / 100 for part in color)
+    else if Array.isArray color
+      switch color.length
+        when 1 then colorSpace = 'DeviceGray'
+        when 3 then colorSpace = 'DeviceRGB'
+        when 4 then colorSpace = 'DeviceCMYK'
+        else
+          return null
 
-      return color
+      normal = { colorSpace, components: color }
 
-    return null
+    else if typeof color is 'object'
+      { name, colorSpace, components, isSpot } = color
+      return null if !components or (components.length not in [1, 3, 4])
+
+      colorSpace = color.colorSpace ? channelsToColorSpace(components.length)
+      normal = { name, colorSpace, components, isSpot }
+    else
+      return nill
+
+    if normal.colorSpace.toUpperCase() in ['GRAY', 'DEVICEGRAY', 'RGB', 'DEVICERGB', 'XYZ']
+      normal.components = (part / 255 for part in normal.components)
+    else if normal.colorSpace.toUpperCase() in ['CMYK']
+      normal.components = (part / 100 for part in normal.components)
+    else if normal.colorSpace.toUpperCase() in ['LAB']
+      ; # don't transfrom lab data
+
+    if normal.isSpot
+      normal.colorSpaceObj = @getColorSpace(normal)
+    else if normal.colorSpace not in ['DeviceGray', 'DeviceRGB', 'DeviceCMYK', 'Pattern']
+      normal.colorSpaceObj = @getColorSpace(normal.colorSpace)
+
+    return normal
 
   _setColor: (color, stroke) ->
-    color = @_normalizeColor color
-    return no unless color
+    record = @_normalizeColor color
+    return no unless record
 
     op = if stroke then 'SCN' else 'scn'
 
-    if color instanceof PDFGradient
+    if record instanceof PDFGradient
       @_setColorSpace 'Pattern', stroke
-      color.apply(op)
+      record.apply(op)
     else
-      space = if color.length is 4 then 'DeviceCMYK' else 'DeviceRGB'
-      @_setColorSpace space, stroke
+      @_setColorSpace record, stroke
 
-      color = color.join ' '
-      @addContent "#{color} #{op}"
+      if !record.isSpot
+        color = record.components.join ' '
+        @addContent "#{color} #{op}"
+      else
+        @addContent "1 #{op}"
 
     return yes
 
-  _setColorSpace: (space, stroke) ->
+  _setColorSpace: (record, stroke) ->
     op = if stroke then 'CS' else 'cs'
-    @addContent "/#{space} #{op}"
+    if typeof record is 'string'
+      # Pattern
+      @addContent "/#{record} #{op}"
+    else if record.colorSpaceObj
+      # Separation
+      @addContent "/#{record.colorSpaceObj.label} #{op}"
+    else
+      # DeviceGray, DeviceRGB, DeviceCMYK
+      @addContent "/#{record.colorSpace} #{op}"
 
   fillColor: (color, opacity) ->
     set = @_setColor color, no

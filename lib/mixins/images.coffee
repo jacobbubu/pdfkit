@@ -4,7 +4,7 @@ module.exports =
   initImages: ->
     @_imageRegistry = {}
     @_imageCount = 0
-    
+
   image: (src, x, y, options = {}) ->
     if typeof x is 'object'
       options = x
@@ -26,6 +26,13 @@ module.exports =
       image.embed this
 
     @page.xobjects[image.label] ?= image.obj
+
+    if options.transform?
+      @save()
+      @transform options.transform...
+      @addContent "/#{image.label} Do"
+      @restore()
+      return this
 
     w = options.width or image.width
     h = options.height or image.height
@@ -77,7 +84,7 @@ module.exports =
       else if options.valign is 'bottom'
         y = y + bh - h
 
-    # Set the current y position to below the image if it is in the document flow      
+    # Set the current y position to below the image if it is in the document flow
     @y += h if @y is y
 
     @save()

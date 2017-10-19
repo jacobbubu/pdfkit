@@ -2,7 +2,7 @@ class SVGPath
   @apply: (doc, path) ->
     commands = parse path
     apply commands, doc
-    
+
   parameters =
     A: 7
     a: 7
@@ -73,17 +73,17 @@ class SVGPath
       if args.length is params # handle reused commands
         ret[ret.length] = {cmd, args}
         args = [+curArg]
-        
+
         # handle assumed commands
         cmd = "L" if cmd is "M"
         cmd = "l" if cmd is "m"
       else
         args[args.length] = +curArg
-      
+
     ret[ret.length] = {cmd,args}
-    
+
     return ret
-  
+
   cx = cy = px = py = sx = sy = 0
   apply = (commands, doc) ->
     # current point, control point, and subpath starting point
@@ -92,10 +92,10 @@ class SVGPath
     # run the commands
     for c, i in commands
       runners[c.cmd]?(doc, c.args)
-      
+
     cx = cy = px = py = 0
 
-  runners = 
+  runners =
     M: (doc, a) ->
       cx = a[0]
       cy = a[1]
@@ -141,13 +141,13 @@ class SVGPath
       if px is null
         px = cx
         py = cy
-        
+
       doc.bezierCurveTo cx-(px-cx), cy-(py-cy), cx + a[0], cy + a[1], cx + a[2], cy + a[3]
       px = cx + a[0]
       py = cy + a[1]
       cx += a[2]
       cy += a[3]
-      
+
     Q: (doc, a) ->
       px = a[0]
       py = a[1]
@@ -166,7 +166,7 @@ class SVGPath
       if px is null
         px = cx
         py = cy
-      else 
+      else
         px = cx-(px-cx)
         py = cy-(py-cy)
 

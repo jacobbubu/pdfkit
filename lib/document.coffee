@@ -13,8 +13,8 @@ class PDFDocument extends stream.Readable
   constructor: (@options = {}) ->
     super
 
-    # PDF version
-    @version = 1.3
+    # PDF Version
+    @version = @options.version ? 1.3
 
     # Whether streams should be compressed
     @compress = @options.compress ? yes
@@ -27,6 +27,7 @@ class PDFDocument extends stream.Readable
     @_waiting = 0
     @_ended = false
     @_offset = 0
+    @_ocgs = []
 
     @_root = @ref
       Type: 'Catalog'
@@ -44,6 +45,8 @@ class PDFDocument extends stream.Readable
     @initFonts()
     @initText()
     @initImages()
+    @initOCG()
+    @initColorSpace()
 
     # Initialize the metadata
     @info =
@@ -77,6 +80,8 @@ class PDFDocument extends stream.Readable
   mixin require './mixins/text'
   mixin require './mixins/images'
   mixin require './mixins/annotations'
+  mixin require './mixins/ocg'
+  mixin require './mixins/colorspace'
 
   addPage: (options = @options) ->
     # end the current page if needed
@@ -172,6 +177,9 @@ class PDFDocument extends stream.Readable
 
   end: ->
     @flushPages()
+
+    ocg.end() for ocg in @_ocgs
+
     @_info = @ref()
     for key, val of @info
       if typeof val is 'string'
@@ -183,6 +191,23 @@ class PDFDocument extends stream.Readable
 
     for name, font of @_fontFamilies
       font.finalize()
+
+    if @_layers
+      layerRefs = []
+      onRefs = []
+      for name, layer of @_layers
+        layerRefs.push layer.ref()
+        if layer.visible
+          onRefs.push layer.ref()
+        layer.finalize()
+
+      @_root.data.OCProperties =
+        D:
+            BaseState: 'OFF'
+            Order: layerRefs
+            ON: onRefs
+
+        OCGs: layerRefs
 
     @_root.end()
     @_root.data.Pages.end()

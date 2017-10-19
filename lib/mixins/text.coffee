@@ -189,9 +189,8 @@ module.exports =
 
     # calculate the actual rendered width of the string after word and character spacing
     renderedWidth = options.textWidth + (wordSpacing * (options.wordCount - 1)) + (characterSpacing * (text.length - 1))
-
     # create link annotations if the link option is given
-    if options.link?
+    if options.link
       @link x, y, renderedWidth, @currentLineHeight(), options.link
 
     # create underline or strikethrough line

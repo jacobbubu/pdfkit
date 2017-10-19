@@ -197,11 +197,11 @@ module.exports =
 
   fillAndStroke: (fillColor, strokeColor = fillColor, rule) ->
     isFillRule = /(even-?odd)|(non-?zero)/
-    if isFillRule.test(fillColor)
+    if typeof fillColor is 'string' and isFillRule.test(fillColor)
       rule = fillColor
       fillColor = null
 
-    if isFillRule.test(strokeColor)
+    if typeof strokeColor is 'string' and isFillRule.test(strokeColor)
       rule = strokeColor
       strokeColor = fillColor
 
