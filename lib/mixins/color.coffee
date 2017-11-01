@@ -44,7 +44,7 @@ module.exports =
       colorSpace = color.colorSpace ? channelsToColorSpace(components.length)
       normal = { name, colorSpace, components, isSpot }
     else
-      return nill
+      return null
 
     if normal.colorSpace.toUpperCase() in ['GRAY', 'DEVICEGRAY', 'RGB', 'DEVICERGB', 'XYZ']
       normal.components = (part / 255 for part in normal.components)
