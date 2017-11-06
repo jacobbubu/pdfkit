@@ -210,6 +210,9 @@ module.exports =
       @stroke()
       @restore()
 
+    if typeof options.textFragmentStartCallback is 'function'
+      options.textFragmentStartCallback()
+
     # flip coordinate system
     @save()
     @transform 1, 0, 0, -1, 0, @page.height
@@ -246,7 +249,17 @@ module.exports =
       encoded = []
       positions = []
       for word in words
-        [encodedWord, positionsWord] = @_font.encode(word, options.features)
+        if typeof options.textEncodeCallback is 'function'
+          [encodedWord, positionsWord] = options.textEncodeCallback(
+            word, @_font, {
+              features: options.features
+              scale
+              x
+              y
+            }
+          )
+        else
+          [encodedWord, positionsWord] = @_font.encode(word, options.features)
         encoded.push encodedWord...
         positions.push positionsWord...
 
@@ -257,7 +270,17 @@ module.exports =
         space.xAdvance += wordSpacing
         positions[positions.length - 1] = space
     else
-      [encoded, positions] = @_font.encode(text, options.features)
+      if typeof options.textEncodeCallback is 'function'
+        [encoded, positions] = options.textEncodeCallback(
+          word, @_font, {
+            features: options.features
+            scale
+            x
+            y
+          }
+        )
+      else
+        [encoded, positions] = @_font.encode(text, options.features)
 
     scale = @_fontSize / 1000
     commands = []
@@ -313,3 +336,5 @@ module.exports =
 
     # restore flipped coordinate system
     @restore()
+    if typeof options.textFragmentEndCallback is 'function'
+      options.textFragmentEndCallback()
