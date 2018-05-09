@@ -25,13 +25,13 @@ module.exports =
       else if namedColors[color]
         components = namedColors[color]
 
-      normal = { colorSpace: 'DeviceRGB', components }
+      normal = { colorSpace: 'RGB', components }
 
     else if Array.isArray color
       switch color.length
         when 1 then colorSpace = 'DeviceGray'
-        when 3 then colorSpace = 'DeviceRGB'
-        when 4 then colorSpace = 'DeviceCMYK'
+        when 3 then colorSpace = 'RGB'
+        when 4 then colorSpace = 'CMYK'
         else
           return null
 

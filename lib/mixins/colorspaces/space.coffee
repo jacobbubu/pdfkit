@@ -46,6 +46,8 @@ nameToRef = (document, name) ->
       ref = profileToRef document, stockProfiles.LabD50, alt
     when 'CMYK'
       ref = profileToRef document, stockProfiles.DefaultCMYK, 'DeviceCMYK'
+    when 'RGB'
+      ref = profileToRef document, stockProfiles.DefaultRGB, 'DeviceRGB'
     else
       throw new Error "Unsupported colorspace('#{name}')"
   ref

@@ -24,9 +24,11 @@ buildSeparationSpace = (document, record, colorSpaces) ->
         >>
       """]
     when 'RGB'
+      colorSpaces['RGB'] ?= new Space document, 'RGB'
+
       ref = document.ref ["""Separation
         /#{encodedName}
-        /DeviceRGB
+        #{colorSpaces['RGB'].ref.toString()}
         <<
           /C0[0.0 0.0 0.0]
           /C1[#{components.join(' ')}]
@@ -37,9 +39,11 @@ buildSeparationSpace = (document, record, colorSpaces) ->
         >>
       """]
     when 'CMYK'
+      colorSpaces['CMYK'] ?= new Space document, 'CMYK'
+
       ref = document.ref ["""Separation
         /#{encodedName}
-        /DeviceCMYK
+        #{colorSpaces['CMYK'].ref.toString()}
         <<
           /C0[0.0 0.0 0.0 0.0]
           /C1[#{components.join(' ')}]
