@@ -59,11 +59,12 @@ class JPEG
       @obj.data['ColorSpace'] = document.getColorSpaceRef @iccProfile
     else
       colorSpace = switch @channels
-        when 1 then 'DeviceGray'
-        when 3 then 'DeviceRGB'
-        when 4 then 'DeviceCMYK'
-
-      @obj.data['ColorSpace'] = colorSpace
+        when 1:
+          @obj.data['ColorSpace'] = document.getColorSpaceRef 'CALGRAY'
+        when 3:
+          @obj.data['ColorSpace'] = document.getColorSpaceRef 'RGB'
+        when 4:
+          @obj.data['ColorSpace'] = document.getColorSpaceRef 'CMYK'
 
       # add extra decode params for CMYK images. By swapping the
       # min and max values from the default, we invert the colors. See

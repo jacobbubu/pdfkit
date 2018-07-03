@@ -35,14 +35,18 @@ class PNGImage
       if @iccProfile
         @obj.data['ColorSpace'] = @document.getColorSpaceRef @iccProfile
       else
-        @obj.data['ColorSpace'] = @image.colorSpace
+        if @image.colorSpace is 'DeviceRGB'
+          @obj.data['ColorSpace'] = @document.getColorSpaceRef 'RGB'
+        else
+          @obj.data['ColorSpace'] = @image.colorSpace
     else
+      console.log ' ==== png @image.palette.length > 0'
       # embed the color palette in the PDF as an object stream
       palette = @document.ref()
       palette.end new Buffer @image.palette
 
       # build the color space array for the image
-      @obj.data['ColorSpace'] = ['Indexed', 'DeviceRGB', (@image.palette.length / 3) - 1, palette]
+      @obj.data['ColorSpace'] = ['Indexed', 'RGB', (@image.palette.length / 3) - 1, palette]
 
     # For PNG color types 0(greyscale), 2(truecolor) and 3(indexed), the transparency data is stored in
     # a dedicated PNG chunk.
