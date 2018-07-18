@@ -40,7 +40,6 @@ class PNGImage
         else
           @obj.data['ColorSpace'] = @image.colorSpace
     else
-      console.log ' ==== png @image.palette.length > 0'
       # embed the color palette in the PDF as an object stream
       palette = @document.ref()
       palette.end new Buffer @image.palette

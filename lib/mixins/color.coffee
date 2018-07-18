@@ -2,7 +2,7 @@
 
 channelsToColorSpace = (channels) ->
   switch channels
-    when 1 then 'DeviceGray'
+    when 1 then 'DeviceGRAY'
     when 3 then 'DeviceRGB'
     when 4 then 'DeviceCMYK'
 
@@ -29,9 +29,9 @@ module.exports =
 
     else if Array.isArray color
       switch color.length
-        when 1 then colorSpace = 'DeviceGray'
-        when 3 then colorSpace = 'RGB'
-        when 4 then colorSpace = 'CMYK'
+        when 1 then colorSpace = 'DeviceGRAY'
+        when 3 then colorSpace = 'DeviceRGB'
+        when 4 then colorSpace = 'DeviceCMYK'
         else
           return null
 
@@ -46,17 +46,24 @@ module.exports =
     else
       return null
 
+    if normal.components.length is 1
+      console.log normal
+
     if normal.colorSpace.toUpperCase() in ['RGB', 'DEVICERGB', 'CALRGB', 'XYZ']
       normal.components = (part / 255 for part in normal.components)
-    else if normal.colorSpace.toUpperCase() in ['DEVICEGRAY', 'CALGRAY', 'CMYK']
+    else if normal.colorSpace.toUpperCase() in ['DEVICEGRAY', 'CALGRAY', 'DEVICECMYK', 'CMYK']
       normal.components = (part / 100 for part in normal.components)
     else if normal.colorSpace.toUpperCase() in ['LAB']
       ; # don't transfrom lab data
 
     if normal.isSpot
       normal.colorSpaceObj = @getColorSpace(normal)
-    else if normal.colorSpace not in ['DeviceGray', 'DeviceRGB', 'DeviceCMYK', 'Pattern']
-      normal.colorSpaceObj = @getColorSpace(normal.colorSpace)
+    else if normal.colorSpace in ['DeviceRGB', 'RGB']
+      # use sRGB profile as a default color profile for all RGB color space
+      normal.colorSpaceObj = @getColorSpace('RGB')
+    else if normal.colorSpace in ['DeviceCMYK', 'CMYK']
+      # use stocked CMYK profile as a default color profile for all CMYK color space
+      normal.colorSpaceObj = @getColorSpace('CMYK')
 
     return normal
 
@@ -86,10 +93,10 @@ module.exports =
       # Pattern
       @addContent "/#{record} #{op}"
     else if record.colorSpaceObj
-      # Separation
+      # Separation or stocked profile
       @addContent "/#{record.colorSpaceObj.label} #{op}"
     else
-      # DeviceGray, DeviceRGB, DeviceCMYK
+      # DeviceGRAY, DeviceRGB, DeviceCMYK
       @addContent "/#{record.colorSpace} #{op}"
 
   fillColor: (color, opacity) ->

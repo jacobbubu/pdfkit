@@ -8,7 +8,7 @@ BlackPoint = '[0.0 0.0 0.0]'
 getChannels = (name) ->
   switch name.toUpperCase()
     when 'RGB' then 3
-    when 'Lab' then 3
+    when 'LAB' then 3
     when 'CMYK' then 4
     when 'GRAY' then 1
     when 'XYZ' then 3

@@ -8,6 +8,21 @@ buildSeparationSpace = (document, record, colorSpaces) ->
   { name, colorSpace: space, components } = record
   encodedName = encodeColorName name
   switch space.toUpperCase()
+    when 'GRAY'
+      colorSpaces['CALGRAY'] ?= new Space document, 'CALGRAY'
+
+      ref = document.ref ["""Separation
+        /#{encodedName}
+        #{colorSpaces['CALGRAY'].ref.toString()}
+        <<
+          /C0[0.0 0.0]
+          /C1[#{components[0]}]
+          /Domain[0 1]
+          /FunctionType 2
+          /N 1.0
+          /Range[0.0 1.0]
+        >>
+      """]
     when 'LAB'
       colorSpaces['LAB'] ?= new Space document, 'LAB'
 
