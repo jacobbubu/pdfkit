@@ -12,4 +12,3 @@ module.exports =
 
   getColorSpaceLabel: (space) ->
     @_colorSpaces.getSpaceLabel(space)
-
