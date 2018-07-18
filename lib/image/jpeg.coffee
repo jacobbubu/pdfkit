@@ -59,11 +59,11 @@ class JPEG
       @obj.data['ColorSpace'] = document.getColorSpaceRef @iccProfile
     else
       colorSpace = switch @channels
-        when 1:
+        when 1
           @obj.data['ColorSpace'] = document.getColorSpaceRef 'CALGRAY'
-        when 3:
+        when 3
           @obj.data['ColorSpace'] = document.getColorSpaceRef 'RGB'
-        when 4:
+        when 4
           @obj.data['ColorSpace'] = document.getColorSpaceRef 'CMYK'
 
       # add extra decode params for CMYK images. By swapping the
