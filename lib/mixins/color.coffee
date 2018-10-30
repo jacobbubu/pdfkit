@@ -2,7 +2,7 @@
 
 channelsToColorSpace = (channels) ->
   switch channels
-    when 1 then 'DeviceGRAY'
+    when 1 then 'DeviceGray'
     when 3 then 'DeviceRGB'
     when 4 then 'DeviceCMYK'
 
@@ -29,7 +29,7 @@ module.exports =
 
     else if Array.isArray color
       switch color.length
-        when 1 then colorSpace = 'DeviceGRAY'
+        when 1 then colorSpace = 'DeviceGray'
         when 3 then colorSpace = 'DeviceRGB'
         when 4 then colorSpace = 'DeviceCMYK'
         else
@@ -96,7 +96,7 @@ module.exports =
       # Separation or stocked profile
       @addContent "/#{record.colorSpaceObj.label} #{op}"
     else
-      # DeviceGRAY, DeviceRGB, DeviceCMYK
+      # DeviceGray, DeviceRGB, DeviceCMYK
       @addContent "/#{record.colorSpace} #{op}"
 
   fillColor: (color, opacity) ->
