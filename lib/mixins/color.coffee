@@ -46,9 +46,6 @@ module.exports =
     else
       return null
 
-    if normal.components.length is 1
-      console.log normal
-
     if normal.colorSpace.toUpperCase() in ['RGB', 'DEVICERGB', 'CALRGB', 'XYZ']
       normal.components = (part / 255 for part in normal.components)
     else if normal.colorSpace.toUpperCase() in ['DEVICEGRAY', 'CALGRAY', 'DEVICECMYK', 'CMYK']
