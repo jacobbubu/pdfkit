@@ -31,7 +31,6 @@ class PNGImage
       @obj.data['DecodeParms'] = params
       params.end()
 
-    console.log '@image.palette.length', @image.palette.length
     if @image.palette.length is 0
       if @iccProfile
         @obj.data['ColorSpace'] = @document.getColorSpaceRef @iccProfile
