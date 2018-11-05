@@ -31,6 +31,7 @@ class PNGImage
       @obj.data['DecodeParms'] = params
       params.end()
 
+    console.log '@image.palette.length', @image.palette.length
     if @image.palette.length is 0
       if @iccProfile
         @obj.data['ColorSpace'] = @document.getColorSpaceRef @iccProfile
@@ -45,7 +46,7 @@ class PNGImage
       palette.end new Buffer @image.palette
 
       # build the color space array for the image
-      @obj.data['ColorSpace'] = ['Indexed', 'RGB', (@image.palette.length / 3) - 1, palette]
+      @obj.data['ColorSpace'] = ['Indexed', @document.getColorSpaceRef('RGB'), (@image.palette.length / 3) - 1, palette]
 
     # For PNG color types 0(greyscale), 2(truecolor) and 3(indexed), the transparency data is stored in
     # a dedicated PNG chunk.
