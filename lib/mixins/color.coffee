@@ -48,7 +48,7 @@ module.exports =
 
     if normal.colorSpace.toUpperCase() in ['RGB', 'DEVICERGB', 'CALRGB', 'XYZ']
       normal.components = (part / 255 for part in normal.components)
-    else if normal.colorSpace.toUpperCase() in ['DEVICEGRAY', 'CALGRAY', 'DEVICECMYK', 'CMYK']
+    else if normal.colorSpace.toUpperCase() in ['DEVICECMYK', 'CMYK']
       normal.components = (part / 100 for part in normal.components)
     else if normal.colorSpace.toUpperCase() in ['LAB']
       ; # don't transfrom lab data
