@@ -3,7 +3,6 @@ class PDFGradient
     @stops = []
     @embedded = no
     @transform = [1, 0, 0, 1, 0, 0]
-    @_colorSpace = null
 
   stop: (pos, color, opacity = 1) ->
     opacity = Math.max(0, Math.min(1, opacity))
@@ -13,11 +12,12 @@ class PDFGradient
     else
       newSpace = normal.colorSpace
 
-    if !@_colorSpace
-      if normal.isSpot
-        throw new Error 'Can not use separation(spot) color in stop color'
-      @_colorSpace = newSpace
-    else if newSpace.toString() isnt @_colorSpace.toString()
+    @_colorSpace = newSpace if !@_colorSpace
+
+    if normal.isSpot
+      throw new Error 'Can not use separation(spot) color in stop color'
+
+    if newSpace.toString() isnt @_colorSpace.toString()
         throw new Error 'All stop colors should have same color space'
 
     @stops.push [pos, normal, opacity]
