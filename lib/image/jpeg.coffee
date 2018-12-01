@@ -56,7 +56,6 @@ class JPEG
       Filter: 'DCTDecode'
 
     if @iccProfile
-      console.log 'got profile'
       @obj.data['ColorSpace'] = document.getColorSpaceRef @iccProfile
     else
       colorSpace = switch @channels
