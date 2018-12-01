@@ -21,6 +21,8 @@
 fs = require 'fs'
 zlib = require 'zlib'
 
+MaxTempBufferSize = 1024 * 1024 * 10
+
 module.exports = class PNG
   @decode: (path, fn) ->
      fs.readFile path, (err, file) ->
@@ -29,6 +31,7 @@ module.exports = class PNG
          fn pixels
 
   @load: (path) ->
+    @filePath = path
     file = fs.readFileSync path
     return new PNG(file)
 
@@ -36,9 +39,12 @@ module.exports = class PNG
     @pos = 8  # Skip the default header
 
     @palette = []
-    @imgData = []
+    @imgData = Buffer.allocUnsafe(0)
+    @imgTempBuffer = Buffer.allocUnsafe(MaxTempBufferSize)
+    @imgTempBufferPos = 0
     @transparency = {}
     @text = {}
+    @counter = 0
 
     loop
       chunkSize = @readUInt32()
@@ -46,7 +52,7 @@ module.exports = class PNG
 
       switch section
         when 'IHDR'
-          # we can grab  interesting values from here (like width, height, etc)
+          # we can grab interesting values from here (like width, height, etc)
           @width = @readUInt32()
           @height = @readUInt32()
           @bits = @data[@pos++]
@@ -59,8 +65,15 @@ module.exports = class PNG
           @palette = @read(chunkSize)
 
         when 'IDAT'
-          for i in [0...chunkSize] by 1
-            @imgData.push @data[@pos++]
+          if @imgTempBufferPos + chunkSize > @imgTempBuffer.length
+            @imgData = Buffer.concat([@imgData, @imgTempBuffer.slice(0, @imgTempBufferPos)])
+            @imgTempBuffer = Buffer.allocUnsafe(MaxTempBufferSize)
+            @imgTempBufferPos = 0
+
+          if chunkSize > 0
+            @data.copy(@imgTempBuffer, @imgTempBufferPos, @pos, @pos + chunkSize)
+            @imgTempBufferPos += chunkSize
+            @pos += chunkSize
 
         when 'tRNS'
           # This chunk can only occur once and it must occur after the
@@ -104,7 +117,11 @@ module.exports = class PNG
             when 1 then 'DeviceGray'
             when 3 then 'DeviceRGB'
 
-          @imgData = new Buffer @imgData
+          if 0 < @imgTempBufferPos < @imgTempBuffer.length
+            @imgData = Buffer.concat([@imgData, @imgTempBuffer.slice(0, @imgTempBufferPos)])
+            @imgTempBuffer = Buffer.allocUnsafe(MaxTempBufferSize)
+            @imgTempBufferPos = 0
+
           return
 
         # https://www.w3.org/TR/PNG/#11iCCP
