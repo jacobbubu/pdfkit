@@ -66,8 +66,8 @@ class TIFFImage
     pixels = @imgData
     colorByteSize = @colors * @bitsPerSample / 8
     pixelCount = @width * @height
-    imgData = new Buffer pixelCount * colorByteSize
-    alphaChannel = new Buffer(pixelCount)
+    imgData = Buffer.alloc pixelCount * colorByteSize
+    alphaChannel = Buffer.alloc(pixelCount)
 
     i = p = a = 0
     len = pixels.length

@@ -130,7 +130,7 @@ module.exports = class PNG
           iccProfileName = @readText()
           # ignore compressMethod since there is only one method defined
           @read 1
-          compressedProfile = new Buffer @read(chunkSize - iccProfileName.length - 2)
+          compressedProfile = Buffer.from @read(chunkSize - iccProfileName.length - 2)
           @iccProfile = zlib.inflateSync compressedProfile
         else
           # unknown (or unimportant) section, skip it
@@ -152,7 +152,7 @@ module.exports = class PNG
     while char isnt 0
       chars.push char
       char = @data[@pos++]
-    new Buffer(chars).toString()
+    Buffer.from(chars).toString()
 
   readUInt32: ->
     b1 = @data[@pos++] << 24
@@ -173,7 +173,7 @@ module.exports = class PNG
       pixelBytes = @pixelBitlength / 8
       scanlineLength = pixelBytes * @width
 
-      pixels = new Buffer(scanlineLength * @height)
+      pixels = Buffer.alloc(scanlineLength * @height)
       length = data.length
       row = 0
       pos = 0
@@ -242,7 +242,7 @@ module.exports = class PNG
   decodePalette: ->
     palette = @palette
     transparency = @transparency.indexed or []
-    ret = new Buffer(transparency.length + palette.length)
+    ret = Buffer.alloc(transparency.length + palette.length)
     pos = 0
     length = palette.length
     c = 0
@@ -291,7 +291,7 @@ module.exports = class PNG
     return
 
   decode: (fn) ->
-    ret = new Buffer(@width * @height * 4)
+    ret = Buffer.alloc(@width * @height * 4)
     @decodePixels (pixels) =>
       @copyToImageData ret, pixels
       fn ret

@@ -42,7 +42,7 @@ class PNGImage
     else
       # embed the color palette in the PDF as an object stream
       palette = @document.ref()
-      palette.end new Buffer @image.palette
+      palette.end Buffer.from @image.palette
 
       # build the color space array for the image
       @obj.data['ColorSpace'] = ['Indexed', @document.getColorSpaceRef('RGB'), (@image.palette.length / 3) - 1, palette]
@@ -108,8 +108,8 @@ class PNGImage
     @image.decodePixels (pixels) =>
       colorByteSize = @image.colors * @image.bits / 8
       pixelCount = @width * @height
-      imgData = new Buffer(pixelCount * colorByteSize)
-      alphaChannel = new Buffer(pixelCount)
+      imgData = Buffer.alloc(pixelCount * colorByteSize)
+      alphaChannel = Buffer.alloc(pixelCount)
 
       i = p = a = 0
       len = pixels.length
@@ -132,7 +132,7 @@ class PNGImage
     transparency = @image.transparency.indexed
     @image.decodePixels (pixels) =>
       # 索引色解码前是zip.deflate，再之前是滤波的，解码之后还是单通道的，每个像素的值是索引值
-      alphaChannel = new Buffer(@width * @height)
+      alphaChannel = Buffer.alloc(@width * @height)
 
       i = 0
       for j in [0...pixels.length] by 1

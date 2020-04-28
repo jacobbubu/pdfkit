@@ -140,7 +140,7 @@ class PDFDocument extends stream.Readable
 
   _write: (data) ->
     unless Buffer.isBuffer(data)
-      data = new Buffer(data + '\n', 'binary')
+      data = Buffer.from(data + '\n', 'binary')
 
     @push data
     @_offset += data.length

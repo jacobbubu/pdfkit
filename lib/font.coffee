@@ -12,10 +12,10 @@ class PDFFont
       font = fontkit.create src, family
 
     else if src instanceof Uint8Array
-      font = fontkit.create new Buffer(src), family
+      font = fontkit.create Buffer.from(src), family
 
     else if src instanceof ArrayBuffer
-      font = fontkit.create new Buffer(new Uint8Array(src)), family
+      font = fontkit.create Buffer.from(new Uint8Array(src)), family
 
     if not font?
       throw new Error 'Not a supported font format or standard PDF font.'

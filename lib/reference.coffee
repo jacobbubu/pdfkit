@@ -27,7 +27,7 @@ class PDFReference extends stream.Writable
 
   _write: (chunk, encoding, callback) ->
     unless Buffer.isBuffer(chunk)
-      chunk = new Buffer(chunk + '\n', 'binary')
+      chunk = Buffer.from(chunk + '\n', 'binary')
 
     @uncompressedLength += chunk.length
     @data.Length ?= 0

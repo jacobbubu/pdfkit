@@ -48,7 +48,7 @@ class PDFObject
 
       # If so, encode it as big endian UTF-16
       if isUnicode
-        string = swapBytes(new Buffer('\ufeff' + string, 'utf16le')).toString('binary')
+        string = swapBytes(Buffer.from('\ufeff' + string, 'utf16le')).toString('binary')
 
       # Escape characters as required by the spec
       string = string.replace escapableRe, (c) ->
